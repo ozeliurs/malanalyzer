@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">MALWARE INTELLIGENCE / STATIC ANALYSIS</div>
+  <h1>From unknown sample<br>to actionable intelligence.</h1>
+  <p>Let an AI reverse engineer inspect binaries and scripts, follow disassembly, and decode configuration with dedicated analysis tools. Every completed investigation becomes a published Markdown report.</p>
+</section>
+<section class="panel">
+  <h2>Analyze a sample</h2>
+  <p class="muted">Binaries and scripts · Up to {{ max_upload_mb }} MiB · Automatic publication</p>
+  <form id="upload-form">
+    <label class="dropzone" id="dropzone" for="sample">Choose or drop a sample<input id="sample" name="file" type="file" required><span id="filename">Investigated in an offline analysis workspace. Complex samples can take several minutes.</span></label>
+    {% if requires_key %}<label for="api-key">Upload API key</label><input id="api-key" type="password" autocomplete="off" required>{% endif %}
+    <button type="submit" id="submit">Start analysis →</button>
+  </form>
+  <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+</section>
+<section><div class="section-heading"><h2>Latest reports</h2><a href="/reports">View all →</a></div>{% include "_cards.html" %}</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "image": {"type": "object", "required": ["repository", "tag"], "properties": {
+      "repository": {"type": "string", "minLength": 1},
+      "tag": {"type": "string", "minLength": 1},
+      "pullPolicy": {"enum": ["Always", "IfNotPresent", "Never"]}
+    }},
+    "secrets": {"type": "object", "properties": {
+      "existingSecret": {"type": "string", "minLength": 1},
+      "mistralApiKeyKey": {"type": "string", "minLength": 1}
+    }},
+    "worker": {"type": "object", "properties": {"concurrency": {"type": "integer", "minimum": 1, "maximum": 8}}},
+    "config": {"type": "object", "properties": {
+      "model": {"type": "string", "pattern": "^mistral/.+"},
+      "maxUploadMb": {"type": "integer", "minimum": 1, "maximum": 100},
+      "analysisTimeoutSeconds": {"type": "integer", "minimum": 10, "maximum": 7200},
+      "analysisMaxSteps": {"type": "integer", "minimum": 5, "maximum": 300},
+      "analysisMaxToolCalls": {"type": "integer", "minimum": 5, "maximum": 250},
+      "toolTimeoutSeconds": {"type": "integer", "minimum": 5, "maximum": 300},
+      "staticTimeoutSeconds": {"type": "integer", "minimum": 5, "maximum": 300},
+      "maxAttempts": {"type": "integer", "minimum": 1, "maximum": 5},
+      "leaseSeconds": {"type": "integer", "minimum": 30},
+      "pollSeconds": {"type": "number", "minimum": 0.05}
+    }},
+    "analysis": {"type": "object", "properties": {
+      "memoryMb": {"type": "integer", "minimum": 512, "maximum": 8192},
+      "startupTimeoutSeconds": {"type": "integer", "minimum": 10, "maximum": 900},
+      "jobTtlSeconds": {"type": "integer", "minimum": 0, "maximum": 86400},
+      "imagePullSecrets": {"type": "array", "items": {"type": "string", "minLength": 1}},
+      "image": {"type": "object", "properties": {"pullPolicy": {"enum": ["Always", "IfNotPresent", "Never"]}}}
+    }},
+    "service": {"type": "object", "properties": {
+      "type": {"enum": ["ClusterIP", "NodePort", "LoadBalancer"]},
+      "port": {"type": "integer", "minimum": 1, "maximum": 65535}
+    }}
+  }
+}

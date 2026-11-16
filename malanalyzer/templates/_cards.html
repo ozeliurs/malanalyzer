@@ -1,0 +1,12 @@
+<div class="cards">
+{% for report in reports %}
+  <a class="card" href="/reports/{{ report.id }}">
+    <div class="eyebrow">{{ report.family or 'Static investigation' }} · {{ report.published_at.strftime('%Y-%m-%d') }}</div>
+    <h3>{{ report.title }}</h3>
+    <p>{{ report.summary[:240] }}</p>
+    <code>{{ report.sha256[:24] }}…</code>
+  </a>
+{% else %}
+  <div class="empty">No published reports yet. Upload a sample to begin.</div>
+{% endfor %}
+</div>

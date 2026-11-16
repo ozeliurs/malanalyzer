@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "malanalyzer.fullname" . }}
+  labels:
+    {{- include "malanalyzer.labels" . | nindent 4 }}
+data:
+  DATA_DIR: /data
+  EMBEDDED_WORKER: "false"
+  SANDBOX_BACKEND: kubernetes
+  OPENCODE_MODEL: {{ .Values.config.model | quote }}
+  MAX_UPLOAD_MB: {{ .Values.config.maxUploadMb | quote }}
+  WORKER_CONCURRENCY: {{ .Values.worker.concurrency | quote }}
+  ANALYSIS_TIMEOUT_SECONDS: {{ .Values.config.analysisTimeoutSeconds | quote }}
+  ANALYSIS_MAX_STEPS: {{ .Values.config.analysisMaxSteps | quote }}
+  ANALYSIS_MAX_TOOL_CALLS: {{ .Values.config.analysisMaxToolCalls | quote }}
+  TOOL_TIMEOUT_SECONDS: {{ .Values.config.toolTimeoutSeconds | quote }}
+  STATIC_TIMEOUT_SECONDS: {{ .Values.config.staticTimeoutSeconds | quote }}
+  MAX_ATTEMPTS: {{ .Values.config.maxAttempts | quote }}
+  LEASE_SECONDS: {{ .Values.config.leaseSeconds | quote }}
+  POLL_SECONDS: {{ .Values.config.pollSeconds | quote }}
+  SANDBOX_IMAGE: {{ include "malanalyzer.analysisImage" . | quote }}
+  SANDBOX_MEMORY_MB: {{ .Values.analysis.memoryMb | quote }}
+  KUBERNETES_PVC_NAME: {{ include "malanalyzer.pvc" . | quote }}
+  KUBERNETES_INSTANCE: {{ .Release.Name | quote }}
+  KUBERNETES_ANALYSIS_SERVICE_ACCOUNT: {{ include "malanalyzer.analysisServiceAccount" . | quote }}
+  KUBERNETES_IMAGE_PULL_SECRETS: {{ include "malanalyzer.analysisPullSecrets" . | quote }}
+  KUBERNETES_IMAGE_PULL_POLICY: {{ .Values.analysis.image.pullPolicy | quote }}
+  KUBERNETES_STARTUP_TIMEOUT_SECONDS: {{ .Values.analysis.startupTimeoutSeconds | quote }}
+  KUBERNETES_JOB_TTL_SECONDS: {{ .Values.analysis.jobTtlSeconds | quote }}
+  KUBERNETES_CPU_REQUEST: {{ .Values.analysis.cpuRequest | quote }}
+  KUBERNETES_CPU_LIMIT: {{ .Values.analysis.cpuLimit | quote }}
+  KUBERNETES_MEMORY_REQUEST: {{ .Values.analysis.memoryRequest | quote }}
+  KUBERNETES_RUNTIME_CLASS_NAME: {{ .Values.analysis.runtimeClassName | quote }}
+  KUBERNETES_TOLERATIONS: {{ default .Values.tolerations .Values.analysis.tolerations | toJson | quote }}

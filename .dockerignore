@@ -1,0 +1,10 @@
+*
+!sandbox/
+!sandbox/Dockerfile
+!sandbox/runner.py
+!malanalyzer/
+!malanalyzer/**
+!pyproject.toml
+!Dockerfile
+malanalyzer/**/__pycache__/
+malanalyzer/**/*.pyc

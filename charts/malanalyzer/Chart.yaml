@@ -1,0 +1,10 @@
+apiVersion: v2
+name: malanalyzer
+description: Tool-driven malware analysis with FastAPI, OpenCode, Mistral and isolated Kubernetes Jobs
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.28.0-0"
+home: https://github.com/ozeliurs/malanalyzer
+sources:
+  - https://github.com/ozeliurs/malanalyzer

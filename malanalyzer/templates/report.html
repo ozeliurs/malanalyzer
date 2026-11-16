@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title }} · Malanalyzer{% endblock %}
+{% block content %}
+<a href="/reports">← Reports</a>
+<div class="eyebrow report-label">STATIC ANALYSIS · {{ report.published_at.strftime('%Y-%m-%d %H:%M UTC') }}</div>
+<h1>{{ report.title }}</h1><p class="lead">{{ report.summary }}</p>
+<section class="panel metadata">
+  <div><span>Sample</span><strong>{{ report.filename }}</strong></div>
+  <div><span>Size</span><strong>{{ report.size }} bytes</strong></div>
+  {% if report.family %}<div><span>Family</span><strong>{{ report.family }} ({{ report.family_confidence }})</strong></div>{% endif %}
+  <div><span>Model</span><strong>{{ report.model }}</strong></div>
+  <div class="wide"><span>SHA-256</span><code>{{ report.sha256 }}</code></div>
+</section>
+<div class="actions"><a class="button secondary" href="/api/reports/{{ report.id }}/markdown">Download Markdown</a>{% if report.iocs %}<a class="button secondary" href="/api/reports/{{ report.id }}/iocs" download="{{ report.id }}-iocs.json">Download IOCs (JSON)</a>{% endif %}</div>
+<article class="prose">{{ rendered_markdown|safe }}</article>
+{% if report.iocs %}<section class="ioc-section"><h2>Indicators of compromise <span class="badge">{{ report.iocs|length }}</span></h2><p class="muted">Literal candidates are retained alongside AI findings. Consult each description for context; presence alone does not establish maliciousness.</p>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>IOC</th><th>Description</th></tr></thead><tbody>{% for item in report.iocs %}<tr><td><span class="badge">{{ item.type.value }}</span></td><td><code>{{ item.ioc }}</code></td><td>{{ item.description }}</td></tr>{% endfor %}</tbody></table></div></section>{% endif %}
+{% endblock %}

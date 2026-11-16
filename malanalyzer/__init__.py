@@ -1,0 +1,1 @@
+"""Static malware analysis pipeline."""

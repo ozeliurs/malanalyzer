@@ -1,0 +1,105 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/ozeliurs/malanalyzer
+  tag: latest
+  pullPolicy: IfNotPresent
+# Kubernetes registry credentials; also inherited by analysis Jobs unless overridden.
+imagePullSecrets: []
+# - name: ghcr-credentials
+
+secrets:
+  existingSecret: malanalyzer-secrets
+  mistralApiKeyKey: MISTRAL_API_KEY
+  uploadApiKeyKey: UPLOAD_API_KEY
+
+serviceAccount:
+  # Empty names create release-scoped service accounts.
+  name: ""
+analysisServiceAccount:
+  name: ""
+
+persistence:
+  existingClaim: ""
+  size: 20Gi
+  storageClass: ""
+  retain: true
+
+api:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  extraEnv: []
+
+worker:
+  concurrency: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  extraEnv: []
+
+config:
+  model: mistral/mistral-large-4
+  maxUploadMb: 25
+  analysisTimeoutSeconds: 1800
+  analysisMaxSteps: 120
+  analysisMaxToolCalls: 100
+  toolTimeoutSeconds: 120
+  staticTimeoutSeconds: 60
+  maxAttempts: 2
+  leaseSeconds: 90
+  pollSeconds: 1
+
+analysis:
+  image:
+    # Empty repository = <image.repository>-tools; empty tag = image.tag.
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  # A list of Secret names. Empty inherits imagePullSecrets above.
+  imagePullSecrets: []
+  memoryMb: 2048
+  memoryRequest: 256Mi
+  cpuRequest: 250m
+  cpuLimit: "2"
+  startupTimeoutSeconds: 180
+  jobTtlSeconds: 120
+  runtimeClassName: ""
+  # Empty inherits the server pod's tolerations.
+  tolerations: []
+  networkPolicy:
+    enabled: true
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # For ingress-nginx, allow multipart overhead above MAX_UPLOAD_MB:
+  # nginx.ingress.kubernetes.io/proxy-body-size: "26m"
+  hosts:
+    - host: malanalyzer.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # - secretName: malanalyzer-tls
+  #   hosts: [malanalyzer.example.com]
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+terminationGracePeriodSeconds: 45

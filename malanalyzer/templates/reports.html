@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Reports · Malanalyzer{% endblock %}
+{% block content %}
+<div class="eyebrow">PUBLISHED INTELLIGENCE</div><h1>Reports</h1>
+<form class="search" action="/reports" method="get"><input name="q" value="{{ q }}" placeholder="Search title or SHA-256" aria-label="Search reports" maxlength="200"><button>Search</button></form>
+<p class="muted">{{ total }} published report{{ '' if total == 1 else 's' }}</p>
+{% include "_cards.html" %}
+<div class="pagination">{% if page > 1 %}<a href="/reports?page={{ page - 1 }}&amp;q={{ q|urlencode }}">← Previous</a>{% endif %}{% if page * 20 < total %}<a href="/reports?page={{ page + 1 }}&amp;q={{ q|urlencode }}">Next →</a>{% endif %}</div>
+{% endblock %}

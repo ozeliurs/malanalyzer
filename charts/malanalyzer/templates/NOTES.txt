@@ -1,0 +1,15 @@
+Malanalyzer is installed in namespace {{ .Release.Namespace }}.
+
+API and worker share one PVC; investigations run as isolated Kubernetes Jobs.
+Check the server:
+  kubectl -n {{ .Release.Namespace }} rollout status statefulset/{{ include "malanalyzer.fullname" . }}
+  kubectl -n {{ .Release.Namespace }} logs {{ include "malanalyzer.fullname" . }}-0 -c worker
+
+Open the site locally:
+  kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "malanalyzer.fullname" . }} 8001:{{ .Values.service.port }}
+  http://127.0.0.1:8001
+
+Required Secret: {{ .Values.secrets.existingSecret }} (key {{ .Values.secrets.mistralApiKeyKey }}).
+Analysis image: {{ include "malanalyzer.analysisImage" . }}
+The analysis NetworkPolicy requires a CNI that enforces Kubernetes NetworkPolicy.
+Use a block-backed ReadWriteOnce PVC; SQLite/WAL is not supported on NFS.
