@@ -27,8 +27,11 @@ class KubernetesClient(SandboxClient):
         self.pod_name = None
 
     async def kubectl(self, *arguments, timeout=30, **kwargs):
+        # Keep kubectl's default config intact: client-go's in-cluster fallback can
+        # be bypassed by --request-timeout, causing unauthenticated localhost:8080
+        # requests. run_bounded already enforces the command/exec deadline.
         return await run_bounded(
-            [self.binary, "--namespace", self.namespace, f"--request-timeout={timeout}s", *arguments],
+            [self.binary, "--namespace", self.namespace, *arguments],
             cwd=self.cwd, env=kubernetes_environment(), timeout=timeout, **kwargs,
         )
 

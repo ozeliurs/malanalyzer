@@ -31,6 +31,12 @@ def failure_reason(stdout: bytes, stderr: bytes, code: int) -> str:
         return "Analysis image is not built; run docker build -f sandbox/Dockerfile -t malanalyzer-tools:local ."
     if b"Cannot connect to the Docker daemon" in stderr or b"failed to connect to the docker API" in stderr:
         return "Docker daemon is unavailable; start Docker and check the worker's Docker context."
+    if b"localhost:8080" in stderr or b"[::1]:8080" in stderr:
+        return "Kubernetes CLI could not load in-cluster credentials; check the worker's service-account configuration."
+    if b"forbidden" in stderr.lower() and b"cannot" in stderr.lower():
+        return "Kubernetes API denied the worker's request; check its namespace-scoped RBAC."
+    if b"Unauthorized" in stderr or b"You must be logged in to the server" in stderr:
+        return "Kubernetes authentication failed; check the worker's projected service-account token."
     return f"Analysis subprocess exited with code {code}."
 
 

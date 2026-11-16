@@ -14,7 +14,7 @@ from malanalyzer.kubernetes_sandbox import (
     KubernetesSandbox,
     kubernetes_environment,
 )
-from malanalyzer.process import ProcessError
+from malanalyzer.process import ProcessError, failure_reason
 from malanalyzer.sandbox import create_sandbox
 
 
@@ -90,6 +90,36 @@ def test_kubernetes_tool_bridge_reuses_protocol_without_docker_or_credentials(tm
         assert payload["code"] == "print('decoded')"
         assert calls[-1][1]["timeout"] == 135
     asyncio.run(checks())
+
+
+def test_kubectl_preserves_in_cluster_fallback_and_bounds_timeout_externally(tmp_path, monkeypatch):
+    monkeypatch.setenv("KUBERNETES_SERVICE_HOST", "10.43.0.1")
+    monkeypatch.setenv("KUBERNETES_SERVICE_PORT", "443")
+    calls = []
+
+    async def fake_run(command, **kwargs):
+        calls.append((command, kwargs))
+        return b"job created", b""
+
+    monkeypatch.setattr("malanalyzer.kubernetes_sandbox.run_bounded", fake_run)
+    client = KubernetesClient("kubectl", "malanalyzer-" + "a" * 32, tmp_path, "malanalyzer")
+    asyncio.run(client.kubectl("create", "-f", "-", timeout=135, input_data=b"{}"))
+    command, options = calls[0]
+    assert command == ["kubectl", "--namespace", "malanalyzer", "create", "-f", "-"]
+    assert not any(arg.startswith("--request-timeout") for arg in command)
+    assert options["timeout"] == 135
+    assert options["input_data"] == b"{}"
+    assert options["env"]["KUBERNETES_SERVICE_HOST"] == "10.43.0.1"
+    assert options["env"]["KUBERNETES_SERVICE_PORT"] == "443"
+
+
+@pytest.mark.parametrize(("stderr", "expected"), [
+    (b'Get "http://localhost:8080/openapi/v2": connection refused', "in-cluster credentials"),
+    (b'jobs.batch is forbidden: User cannot create resource jobs', "namespace-scoped RBAC"),
+    (b'error: You must be logged in to the server (Unauthorized)', "service-account token"),
+])
+def test_kubernetes_errors_have_actionable_safe_messages(stderr, expected):
+    assert expected in failure_reason(b"", stderr, 1)
 
 
 def test_kubernetes_job_stages_sample_and_cleans_up_on_failure(tmp_path, monkeypatch):
